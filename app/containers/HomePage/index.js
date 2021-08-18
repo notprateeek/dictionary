@@ -26,13 +26,14 @@ function HomePage(props) {
   return (
     <Container>
       <h1 style={{ textAlign: 'center' }}>Dictionary</h1>
-      <TextField
-        type="text"
-        value={value}
-        onChange={e => setValue(e.target.value)}
-      />
-      <Button onClick={() => props.dispatch(fetchData(value))}>submit</Button>
-
+      <form onSubmit={() => props.dispatch(fetchData(value))}>
+        <TextField
+          type="text"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+        />
+        <Button type={submit} onClick={() => props.dispatch(fetchData(value))}>submit</Button>
+      </form>
       {props.result.map(item =>
         item.meanings.map(item =>
           item.definitions.map(item => <h4 key={item}>{item.definition}</h4>),
