@@ -5,14 +5,55 @@
  *
  */
 
-import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import messages from './messages';
+import React, { useState } from 'react';
+import { useInjectReducer } from 'utils/injectReducer';
+import { useInjectSaga } from 'utils/injectSaga';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
+import { Container, TextField, Button } from '@material-ui/core';
+import reducer from './reducer';
+import saga from './saga';
+import { makeSelectResult, makeSelectLoading } from './selectors';
+import { fetchData } from './actions';
 
-export default function HomePage() {
+function HomePage(props) {
+  const [value, setValue] = useState('');
+
+  useInjectReducer({ key: 'dictionary', reducer });
+  useInjectSaga({ key: 'dictionary', saga });
+
   return (
-    <h1>
-      <FormattedMessage {...messages.header} />
-    </h1>
+    <Container>
+      <h1 style={{ textAlign: 'center' }}>Dictionary</h1>
+      <TextField
+        type="text"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+      />
+      <Button onClick={() => props.dispatch(fetchData(value))}>submit</Button>
+
+      {props.result.map(item =>
+        item.meanings.map(item =>
+          item.definitions.map(item => <h4 key={item}>{item.definition}</h4>),
+        ),
+      )}
+    </Container>
   );
 }
+
+const mapStateToProps = createStructuredSelector({
+  result: makeSelectResult(),
+  loading: makeSelectLoading(),
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+});
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(withConnect)(HomePage);
